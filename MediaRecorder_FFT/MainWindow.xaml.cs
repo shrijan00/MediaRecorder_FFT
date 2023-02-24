@@ -21,13 +21,20 @@ namespace MediaRecorder_FFT
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {   
-
+    {
+        
         public MainWindow()
         {
+            DataContext = new MicroPhRecorder(WpfPlot1.Plot);
             InitializeComponent();
-            DataContext = new MicroPhRecorder();
             
+
+
+
+
+            //DataContext = this;
+
+
         }
 
 

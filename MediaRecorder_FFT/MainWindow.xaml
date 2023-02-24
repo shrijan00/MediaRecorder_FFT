@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaRecorder_FFT"
         xmlns:Plot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF"
-        d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance {x:Type local:MicroPhRecorder}}"
         
+        
+        
+
         Title="MainWindow" Height="550" Width="700">
     <StackPanel>
         <Grid>
@@ -28,7 +31,7 @@
                 <RowDefinition Height="200"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-           
+
             <WpfPlot Name="WpfPlot1"/>
 
 
