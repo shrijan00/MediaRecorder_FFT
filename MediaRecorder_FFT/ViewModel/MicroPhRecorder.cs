@@ -6,24 +6,21 @@ using System.Threading;
 using System.Windows.Input;
 using System.Windows.Threading;
 using MediaRecorder_FFT.ViewModel;
+using NAudio.Gui;
 using NAudio.Wave;
 using NAudio.Wave.Compression;
 using ScottPlot;
-
+using ScottPlot.Plottable;
 
 namespace MediaRecorder_FFT
 {
     internal class MicroPhRecorder
     {
-        public WaveFormat recordingFormat;
-        public WaveIn microphoneWave;
-        public BufferedWaveProvider audioBuffer;
-        public DispatcherTimer timer;
+        private WaveFormat _recordingFormat;
+        private WaveIn _microphoneWave;
+        private BufferedWaveProvider _audioBuffer;
+        private DispatcherTimer _timer;
         private Plot _plt;
-
-        
-        
-        //public WaveFileWriter  writer;
 
         private readonly int _sampleRate;
         private readonly int _channels;
@@ -35,35 +32,39 @@ namespace MediaRecorder_FFT
             
             _sampleRate = samplerate; //in KHZ
             _channels = channels; // mono channel
+            
 
-            recordingFormat = new WaveFormat(_sampleRate, _channels);
+
+            _recordingFormat = new WaveFormat(_sampleRate, _channels);
 
             // For storing the incoming Audio data into buffer
-            audioBuffer = new BufferedWaveProvider(recordingFormat)
+            _audioBuffer = new BufferedWaveProvider(_recordingFormat)
             {
                 BufferDuration = TimeSpan.FromMilliseconds(buffermilliseconds),
                 DiscardOnBufferOverflow= true
             };
 
             _plt = plt;
-            microphoneWave = new WaveIn
+            _plt.XLabel("Time (s)");
+            _plt.YLabel("Amplitude");
+            _plt.Title("Recorded Audio");
+            //_plt.AxisAuto(0);
+            _microphoneWave = new WaveIn
             {
                 DeviceNumber= 0,
-                WaveFormat = recordingFormat,
+                WaveFormat = _recordingFormat,
                 BufferMilliseconds = buffermilliseconds
 
             };
 
-            timer = new DispatcherTimer
+            _timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(buffermilliseconds),
             };
-            //WaveFileWriter writer = new WaveFileWriter("output.wav", recordingFormat);
+            //WaveFileWriter writer = new WaveFileWriter("output.wav", _recordingFormat);
 
         }
         
-        // queue to hold the recorded audio data
-        private Queue<byte[]> AudioDataQueue { get; set; }= new Queue<byte[]>();
 
         // Button Commands
         public ICommand Start => new RelayCommand(StartRecording, StatusRecording);
@@ -71,27 +72,27 @@ namespace MediaRecorder_FFT
         
         private void StartRecording(object parameter)
         {
-            //var _plt = new Plot(600, 400);
-            microphoneWave.DataAvailable += AudioDataAvailable;
-            
+            // Create Event when new Audio data is available
+            _microphoneWave.DataAvailable += AudioDataAvailable;
 
+            //
             // Start recording
-            timer.Tick += DispatcherTimer_Tick;
-            microphoneWave.StartRecording();
-            timer.Start();
+            _timer.Tick += DispatcherTimer_Tick;
+            _microphoneWave.StartRecording();
+            _timer.Start();
         }
 
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            var data = new byte[audioBuffer.BufferLength];
-            var bytesCount = audioBuffer.Read(buffer:data, offset:0, count:data.Length);
-
+            // Extract Audio data
+            var data = new byte[_audioBuffer.BufferLength];
+            
+            var bytesCount = _audioBuffer.Read(buffer:data, offset:0, count:data.Length);
+            _plt.Clear();
             if (bytesCount > 0)
             {
 
                 Console.WriteLine("Processing Data");
-                //AudioDataQueue.Enqueue(data);
-               //var audioBytes = AudioDataQueue.Dequeue();
                
                 // convert audio bytes to doubles
                 var audioDoubles = new double[bytesCount/ 2]; //Total Samples
@@ -100,31 +101,19 @@ namespace MediaRecorder_FFT
                     short audioSample = BitConverter.ToInt16(data, i);
                     audioDoubles[i / 2] = (double)audioSample / (double)short.MaxValue;
                 }
-                //var _plt = new Plot(600, 400);
-                //// create new SignalPlot with audio data
-                _plt.AddSignal(audioDoubles, recordingFormat.SampleRate);
-
-                //// set plot axis labels
-                _plt.XLabel("Time (s)");
-                _plt.YLabel("Amplitude");
-                _plt.Title("Recorded Audio");
-                _plt.AxisAuto(0);
-                //_plt.AxisAuto(1);
+              
+                _plt.AddSignal(ys:audioDoubles, sampleRate: _recordingFormat.SampleRate, color:System.Drawing.Color.Red);
+                //CurrentXEdge = _plt.GetAxisLimits().XMax;
+                //_plt.SetAxisLimits(xMin:CurrentXEdge,xMax:CurrentXEdge + 0.1);
+                _plt.AxisAuto();
                 
-
-
-                //// render plot
                 _plt.Render();
-                _plt.SaveFig(@"D:\\Audio\\audio.png");
-                ////var writer = new WaveFileWriter(@"D:\\Audio\\Test0001.wav", recordingFormat);
-                ////if (writer != null)
-                ////{
 
-                ////    writer.Write(data, 0, bytesCount);
-                ////    writer.Flush();
-                ////    writer.Dispose();
-                ////}
-                //audioBuffer.ClearBuffer();
+                //Save Plot
+                //_plt.SaveFig(@"D:\\Audio\\audio.png");
+
+               _audioBuffer.ClearBuffer();
+               
 
             }
 
@@ -132,10 +121,8 @@ namespace MediaRecorder_FFT
 
         private void AudioDataAvailable(object sender, WaveInEventArgs e)
         {
-            AudioDataQueue.Enqueue(e.Buffer);
-            audioBuffer.AddSamples(buffer: e.Buffer, offset: 0, count: e.BytesRecorded);
-            
-
+            // Add New Audio data to Buffer whenever Available
+            _audioBuffer.AddSamples(buffer: e.Buffer, offset: 0, count: e.BytesRecorded);
 
         }
 
@@ -148,8 +135,8 @@ namespace MediaRecorder_FFT
 
         private void StopRecording(object parameter)
         {
-            microphoneWave.StopRecording();
-            timer.Stop();
+            _microphoneWave.StopRecording();
+            _timer.Stop();
         }
     }
 }

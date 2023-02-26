@@ -25,8 +25,12 @@ namespace MediaRecorder_FFT
         
         public MainWindow()
         {
-            DataContext = new MicroPhRecorder(WpfPlot1.Plot);
+            
             InitializeComponent();
+            //Recorder.Plot.SetAxisLimits(0, 0.5, -1, 1);
+            
+            this.DataContext = new MicroPhRecorder(Recorder.Plot);
+            
             
 
 
