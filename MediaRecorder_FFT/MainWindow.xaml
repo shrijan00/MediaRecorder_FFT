@@ -14,7 +14,7 @@
         Title="MainWindow" Height="550" Width="900">
     <StackPanel>
         <Grid>
-            <TextBlock TextAlignment="Center" Text="Recorder FFT" Padding="0.5" FontWeight="Bold" Foreground="Red" FontSize="20"></TextBlock>
+            <TextBlock TextAlignment="Center" Text="Recorder FFT" Padding="0.5" FontWeight="Bold" Foreground="Purple" FontSize="20"></TextBlock>
 
         </Grid>
         <Grid>

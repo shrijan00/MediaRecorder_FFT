@@ -29,7 +29,7 @@ namespace MediaRecorder_FFT
             InitializeComponent();
             //Recorder.Plot.SetAxisLimits(0, 0.5, -1, 1);
             
-            this.DataContext = new MicroPhRecorder(Recorder.Plot);
+            this.DataContext = new MicroPhRecorder(Recorder);
             
             
 

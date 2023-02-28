@@ -20,14 +20,14 @@ namespace MediaRecorder_FFT
         private WaveIn _microphoneWave;
         private BufferedWaveProvider _audioBuffer;
         private DispatcherTimer _timer;
-        private Plot _plt;
+        private WpfPlot _plt;
 
         private readonly int _sampleRate;
         private readonly int _channels;
 
         
 
-        public MicroPhRecorder(Plot plt, int samplerate = 48000, int channels = 1, int buffermilliseconds = 100)
+        public MicroPhRecorder(WpfPlot plt, int samplerate = 48000, int channels = 1, int buffermilliseconds = 100)
         {
             
             _sampleRate = samplerate; //in KHZ
@@ -45,9 +45,9 @@ namespace MediaRecorder_FFT
             };
 
             _plt = plt;
-            _plt.XLabel("Time (s)");
-            _plt.YLabel("Amplitude");
-            _plt.Title("Recorded Audio");
+            _plt.Plot.XLabel("Time (s)");
+            _plt.Plot.YLabel("Amplitude");
+            _plt.Plot.Title("Recorded Audio");
             //_plt.AxisAuto(0);
             _microphoneWave = new WaveIn
             {
@@ -88,7 +88,7 @@ namespace MediaRecorder_FFT
             var data = new byte[_audioBuffer.BufferLength];
             
             var bytesCount = _audioBuffer.Read(buffer:data, offset:0, count:data.Length);
-            _plt.Clear();
+            _plt.Plot.Clear();
             if (bytesCount > 0)
             {
 
@@ -102,11 +102,11 @@ namespace MediaRecorder_FFT
                     audioDoubles[i / 2] = (double)audioSample / (double)short.MaxValue;
                 }
               
-                _plt.AddSignal(ys:audioDoubles, sampleRate: _recordingFormat.SampleRate, color:System.Drawing.Color.Red);
+                _plt.Plot.AddSignal(ys:audioDoubles, sampleRate: _recordingFormat.SampleRate, color:System.Drawing.Color.Red);
                 //CurrentXEdge = _plt.GetAxisLimits().XMax;
                 //_plt.SetAxisLimits(xMin:CurrentXEdge,xMax:CurrentXEdge + 0.1);
-                _plt.AxisAuto();
-                
+                _plt.Plot.AxisAuto();
+                _plt.Plot.SetAxisLimitsY(yMin: -1, yMax: 1);
                 _plt.Render();
 
                 //Save Plot
