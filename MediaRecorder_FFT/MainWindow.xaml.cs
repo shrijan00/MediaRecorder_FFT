@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
+
 namespace MediaRecorder_FFT
 {
     /// <summary>
@@ -29,15 +30,8 @@ namespace MediaRecorder_FFT
             InitializeComponent();
             //Recorder.Plot.SetAxisLimits(0, 0.5, -1, 1);
             
-            this.DataContext = new MicroPhRecorder(Recorder);
+            this.DataContext = new MicroPhRecorder(Recorder, FFT);
             
-            
-
-
-
-
-            //DataContext = this;
-
 
         }
 
