@@ -74,6 +74,7 @@ namespace MediaRecorder_FFT
             {
                 Interval = TimeSpan.FromMilliseconds(buffermilliseconds),
             };
+            _timer.Tick += DispatcherTimer_Tick;
             //WaveFileWriter writer = new WaveFileWriter("output.wav", _recordingFormat);
 
         }
@@ -95,7 +96,7 @@ namespace MediaRecorder_FFT
             
             _microphoneWave.DataAvailable += AudioDataAvailable;
             _microphoneWave.StartRecording();
-            _timer.Tick += DispatcherTimer_Tick;
+            
             _timer.Start();
         }
 
